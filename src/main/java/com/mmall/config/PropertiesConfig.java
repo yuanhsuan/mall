@@ -7,10 +7,15 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.stereotype.Component;
 
+import java.util.Properties;
+
 @Configuration
-@PropertySource(value = {"classpath: datasource.properties"})
+@PropertySource(value = {"classpath: datasource.properties"},ignoreResourceNotFound = true)
 @Component
 public class PropertiesConfig {
+
+    @Value("${db.driverLocation}")
+    private String driverLocation;
 
     @Value("${db.driverClassName}")
     private String driver = null;
@@ -23,6 +28,9 @@ public class PropertiesConfig {
 
     @Value("${db.password}")
     private String password = null;
+
+    @Value("${db.initialSize}")
+    private String initialSize = null;
 
     @Value("${db.maxActive}")
     private String maxActive = null;
@@ -42,6 +50,10 @@ public class PropertiesConfig {
     @Value("${db.minEvictableIdleTimeMillis}")
     private String minEvictableIdleTimeMillis = null;
 
+    public String getDriverLocation() {
+        return driverLocation;
+    }
+
     public String getDriver() {
         return driver;
     }
@@ -56,6 +68,10 @@ public class PropertiesConfig {
 
     public String getPassword() {
         return password;
+    }
+
+    public String getInitialSize() {
+        return initialSize;
     }
 
     public String getMaxActive() {
@@ -83,8 +99,11 @@ public class PropertiesConfig {
     }
 
     @Bean
-    public PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
-        return new PropertySourcesPlaceholderConfigurer();
+    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+        PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer = new PropertySourcesPlaceholderConfigurer();
+        propertySourcesPlaceholderConfigurer.setIgnoreUnresolvablePlaceholders(true);
+        return propertySourcesPlaceholderConfigurer;
     }
+
 
 }

@@ -32,19 +32,17 @@ import java.util.Properties;
 @MapperScan("com.mmall.dao")
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
-public class RootConfig implements TransactionManagementConfigurer{
-
-    @Autowired
-    private PropertiesConfig propertiesConfig;
-    private PageHelperConfig pageHelperConfig;
+public class RootConfig{
 
     @Bean(name = "dataSource")
-    public DataSource initDataSource() {
+    public DataSource initDataSource(@Autowired PropertiesConfig propertiesConfig) {
         Properties props = new Properties();
-        props.setProperty("DriverClassName", propertiesConfig.getDriver());
+        props.setProperty("driverLocation", propertiesConfig.getDriverLocation());
+        props.setProperty("driverClassName", propertiesConfig.getDriver());
         props.setProperty("url", propertiesConfig.getUrl());
         props.setProperty("username", propertiesConfig.getUsername());
         props.setProperty("password", propertiesConfig.getPassword());
+        props.setProperty("initialSize",propertiesConfig.getInitialSize());
         props.setProperty("maxActive", propertiesConfig.getMaxActive());
         props.setProperty("maxIdle", propertiesConfig.getMaxIdle());
         props.setProperty("minIdle", propertiesConfig.getMinIdle());
@@ -66,7 +64,7 @@ public class RootConfig implements TransactionManagementConfigurer{
 
 
     @Bean(name = "sqlSessionFactory")
-    public SqlSessionFactoryBean initSqlSessionFactory(@Autowired DataSource dataSource) throws IOException {
+    public SqlSessionFactoryBean initSqlSessionFactory(@Autowired DataSource dataSource,@Autowired PageHelperConfig pageHelperConfig) throws IOException {
         Interceptor interceptor = pageHelperConfig.getPageHelper();
         SqlSessionFactoryBean sqlSessionFactory = new SqlSessionFactoryBean();
         sqlSessionFactory.setDataSource(dataSource);
@@ -77,20 +75,14 @@ public class RootConfig implements TransactionManagementConfigurer{
     }
 
     @Bean(name = "annotationDrivenTransactionManager")
-    @Override
-    public PlatformTransactionManager annotationDrivenTransactionManager() {
+    public PlatformTransactionManager annotationDrivenTransactionManager(@Autowired DataSource dataSource) {
         DataSourceTransactionManager dataSourceTransactionManager =
-                new DataSourceTransactionManager(initDataSource());
+                new DataSourceTransactionManager(dataSource);
         return dataSourceTransactionManager;
 
     }
 
 
-    @Bean
-    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
-        PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer = new PropertySourcesPlaceholderConfigurer();
-        return propertySourcesPlaceholderConfigurer;
-    }
 
 
 }
