@@ -32,3 +32,4 @@ target/
 Thumbs.db
 # properties
 *.properties
+logback.xml
